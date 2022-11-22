@@ -1,0 +1,7 @@
+version: '3.7'
+
+services:
+  backend_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
