@@ -45,8 +45,15 @@ jobs:
       with:
         context: .
         platforms: linux/amd64,linux/arm64
-        push: true
+        push: false
+        cache-from: type=local,src=/tmp/.buildx-cache
+        cache-to: type=local,dest=/tmp/.buildx-cache-new
         # push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          ghcr.io/ravelin/laravel-docker:latest
-          ghcr.io/ravelin/laravel-docker:${{ github.sha }}
+          ravelin/laravel-docker:latest
+          ravelin/laravel-docker:${{ github.sha }}
+
+    - name: Move cache
+      run: |
+        rm -rf /tmp/.buildx-cache
+        mv /tmp/.buildx-cache-new /tmp/.buildx-cache
