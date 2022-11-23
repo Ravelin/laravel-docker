@@ -15,7 +15,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag laravel-docker:$(date +%s)
+      run: docker build . --file Dockerfile --tag laravel-docker:0.0.1
 
     - name: Login to GHCR
       # if: github.event_name != 'pull_request'
@@ -24,11 +24,11 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
-    
+
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
         context: .
         push: ${{ github.event_name != 'pull_request' }}
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: laravel-docker:0.0.1
+        labels: laravel-docker:0.0.1
