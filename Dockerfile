@@ -87,7 +87,7 @@ COPY /src/composer.* /var/www/html/
 COPY /src /var/www/html/src
 COPY /src/artisan /var/www/html/
 COPY /src/resources /var/www/html/resources
-COPY /src/public/index.php ./public
+COPY /src/public/index.php /var/www/html/public/
 
 # Install Composer Dependencies
 RUN php -d disable_functions='' /usr/local/bin/composer install --no-dev --no-interaction --no-scripts --no-suggest --optimize-autoloader && \
