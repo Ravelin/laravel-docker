@@ -1,32 +1,25 @@
-FROM php:8.1-fpm-alpine3.16
+FROM php:8.1-fpm
 
 WORKDIR /var/www/html
-
-# Composer - https://getcomposer.org/download/
-ARG COMPOSER_VERSION="2.4.4"
-ARG COMPOSER_SUM="c252c2a2219956f88089ffc242b42c8cb9300a368fd3890d63940e4fc9652345"
 
 # Install system dependencies
 ENV RUN_DEPS \
   git \
-  gnupg \
+  gnupg2 \
   unzip \
   curl \
-  fcgi \
-  wget \
-  icu-dev \
-  gettext-dev
+  libfcgi-bin \
+  wget
 
 ENV BUILD_DEPS \
-  zlib-dev \
+  zlib1g-dev \
   libzip-dev \
-  gmp-dev \
-  icu-dev \
+  libgmp-dev \
+  libicu-dev \
   libpng-dev \
-  libjpeg-turbo-dev\
+  libjpeg62-turbo-dev \
   wget \
-  openssl-dev \
-  gettext-dev
+  libssl-dev
 
 ENV PHP_EXTENSIONS \
   pdo_mysql \
@@ -43,14 +36,13 @@ ENV PECL_EXTENSIONS_NAMES redis mailparse mongodb
 
 # Install Dependencies
 RUN \
-  apk update && \
-  apk add --no-cache $RUN_DEPS $BUILD_DEPS && \
-  apk add --no-cache $PHPIZE_DEPS && \
-  rm -rf /var/cache/apk/*
+  apt-get update && \
+  apt-get install -y $RUN_DEPS $BUILD_DEPS --no-install-recommends && \
+  apt-get clean && \
+  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Install PHP Extensions
-RUN \
-  # ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
+RUN ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
   docker-php-ext-configure gmp && \
   docker-php-ext-configure intl && \
   docker-php-ext-configure gd --with-jpeg && \
@@ -61,26 +53,15 @@ RUN \
   rm -r /tmp/pear/*
 
 # Install Composer
-RUN set -eux \
-    && curl -LO "https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar" \
-    && echo "${COMPOSER_SUM}  composer.phar" | sha256sum -c - \
-    && chmod +x composer.phar \
-    && mv composer.phar /usr/local/bin/composer \
-    && composer --version \
-    && true
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # Setup user and group
-# RUN adduser -u 1234 -s /bin/bash -g www www && \
-#   addgroup -g 1234 www
-
-# RUN \
-  # addgroup -g 1000 www
-#   adduser -u 1000 -s /bin/bash -D -G www linux-user
-
+RUN groupadd -g 1000 www && \
+  useradd -u 1000 -ms /bin/bash -g www www
 
 # Setup Storage
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
-  # chown -R www:www bootstrap/cache && \
+  chown -R www:www bootstrap/cache && \
   chmod -R 775 bootstrap/cache
 
 COPY /src/composer.* /var/www/html/
@@ -92,9 +73,3 @@ COPY /src/public/index.php ./public
 # Install Composer Dependencies
 RUN php -d disable_functions='' /usr/local/bin/composer install --no-dev --no-interaction --no-scripts --no-suggest --optimize-autoloader && \
 rm -f composer.lock
-
-
-# STOPSIGNAL SIGQUIT
-
-# EXPOSE 9000
-# CMD ["php-fpm"]
