@@ -48,5 +48,5 @@ jobs:
         push: true
         # push: ${{ github.event_name != 'pull_request' }}
         tags: |
-          ghcr.io/${{ github.repository }}:latest
-          ghcr.io/${{ github.repository }}:${{ github.sha }}
+          ghcr.io/ravelin/laravel-docker:latest
+          ghcr.io/ravelin/laravel-docker:${{ github.sha }}
