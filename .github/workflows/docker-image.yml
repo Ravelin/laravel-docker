@@ -7,17 +7,16 @@ on:
     branches: [ "master" ]
 
 jobs:
-
-  checkout:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
   push:
     runs-on: ubuntu-latest
-    needs: [checkout]
+
+    permissions:
+      contents: read
+      packages: write
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout
+      uses: actions/checkout@v3
 
     - name: Setup QEMU
       uses: docker/setup-qemu-action@v1
@@ -37,8 +36,21 @@ jobs:
       uses: docker/login-action@v2
       with:
         registry: ghcr.io
-        username: ${{ github.repository_owner }}
+        username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract metadata (tags, labels) for Docker
+      id: meta
+      uses: docker/metadata-action@v3
+      with:
+        images: ghcr.io/${{ github.repository }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha
+        labels: |
+          org.opencontainers.image.source=${{ github.event.repository.clone_url }}
+          org.opencontainers.image.revision=${{ github.sha }}
 
     - name: Build and push
       uses: docker/build-push-action@v2
@@ -48,9 +60,8 @@ jobs:
         cache-from: type=local,src=/tmp/.buildx-cache
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         # push: ${{ github.event_name != 'pull_request' }}
-        tags: |
-          ravelin/laravel-docker:latest
-          ravelin/laravel-docker:${{ github.sha }}
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
 
     - name: Move cache
       run: |
