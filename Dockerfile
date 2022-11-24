@@ -70,18 +70,21 @@ RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/f
   chown -R www-data:www-data bootstrap/cache && \
   chmod -R 775 bootstrap/cache
 
-COPY /src/composer.* /var/www/html/
-# COPY /src /var/www/html/src
-COPY --chown=www-data:www-data --from=build /app /var/www/html/src
 COPY /src/artisan /var/www/html/
+COPY /src/composer.* /var/www/html/
+COPY --chown=www-data:www-data --from=build /app /var/www/html/src
 COPY --chown=www-data:www-data /src/resources /var/www/html/resources
-COPY --chown=www-data:www-data /src/public/index.php /var/www/html/public/
+COPY --chown=www-data:www-data --from=build /app/vendor /var/www/html/vendor
+COPY --chown=www-data:www-data --from=build /app/public/index.php /var/www/html/public/
+
+# Remove Unneeded files
 RUN rm /var/www/html/src/artisan
+RUN rm -rf /var/www/html/src/vendor
 
 RUN cp src/.env.example src/.env
-# RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
+RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
-# /var/www/html/artisan key:generate --ansi
+# RUN /var/www/html/artisan key:generate --ansi
 
 RUN addgroup -g 1000 -S www && \
     adduser -u 1000 -S www -G www
