@@ -1,6 +1,6 @@
 <?php
 
-namespace App\app\Exceptions;
+namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;

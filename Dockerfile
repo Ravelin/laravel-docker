@@ -69,15 +69,6 @@ RUN set -eux \
     && composer --version \
     && true
 
-# Setup user and group
-# RUN adduser -u 1234 -s /bin/bash -g www www && \
-#   addgroup -g 1234 www
-
-# RUN \
-  # addgroup -g 1000 www
-#   adduser -u 1000 -s /bin/bash -D -G www linux-user
-
-
 # Setup Storage
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
   # chown -R www:www bootstrap/cache && \
@@ -92,6 +83,13 @@ COPY /src/public/index.php /var/www/html/public/
 # Install Composer Dependencies
 RUN php -d disable_functions='' /usr/local/bin/composer install --no-dev --no-interaction --no-scripts --no-suggest --optimize-autoloader && \
 rm -f composer.lock
+
+RUN addgroup -g 1000 -S www && \
+    adduser -u 1000 -S www -G www
+
+USER www
+
+COPY --chown=www:www . /var/www
 
 
 # STOPSIGNAL SIGQUIT
