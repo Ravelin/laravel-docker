@@ -71,7 +71,7 @@ RUN set -eux \
 
 # Setup Storage
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
-  # chown -R www:www bootstrap/cache && \
+  chown -R www-data:www-data bootstrap/cache && \
   chmod -R 775 bootstrap/cache
 
 COPY /src/composer.* /var/www/html/
@@ -87,12 +87,8 @@ rm -f composer.lock
 RUN addgroup -g 1000 -S www && \
     adduser -u 1000 -S www -G www
 
-USER www
+RUN chown -R www-data:www-data /var/www/html
 
-COPY --chown=www:www . /var/www
+#USER www
 
-
-# STOPSIGNAL SIGQUIT
-
-# EXPOSE 9000
-# CMD ["php-fpm"]
+# COPY --chown=www-data:www-data . /var/www/html
