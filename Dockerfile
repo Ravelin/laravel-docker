@@ -1,3 +1,8 @@
+FROM composer:latest AS build
+COPY src/ /app/
+
+RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
+
 FROM php:8.1-fpm-alpine3.16
 
 WORKDIR /var/www/html
@@ -60,35 +65,21 @@ RUN \
   docker-php-source delete && \
   rm -r /tmp/pear/*
 
-# Install Composer
-RUN set -eux \
-    && curl -LO "https://getcomposer.org/download/${COMPOSER_VERSION}/composer.phar" \
-    && echo "${COMPOSER_SUM}  composer.phar" | sha256sum -c - \
-    && chmod +x composer.phar \
-    && mv composer.phar /usr/local/bin/composer \
-    && composer --version \
-    && true
-
 # Setup Storage
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
   chown -R www-data:www-data bootstrap/cache && \
   chmod -R 775 bootstrap/cache
 
 COPY /src/composer.* /var/www/html/
-COPY /src /var/www/html/src
+# COPY /src /var/www/html/src
+COPY --chown=www-data:www-data --from=build /app /var/www/html/src
 COPY /src/artisan /var/www/html/
-COPY /src/resources /var/www/html/resources
-COPY /src/public/index.php /var/www/html/public/
+COPY --chown=www-data:www-data /src/resources /var/www/html/resources
+COPY --chown=www-data:www-data /src/public/index.php /var/www/html/public/
+RUN rm /var/www/html/src/artisan
 
-# Install Composer Dependencies
-RUN php -d disable_functions='' /usr/local/bin/composer install --no-dev --no-interaction --no-scripts --no-suggest --optimize-autoloader && \
-rm -f composer.lock
+RUN cp src/.env.example src/.env
+CMD [ "/var/www/html/artisan", "key:generate --ansi" ]
 
 RUN addgroup -g 1000 -S www && \
     adduser -u 1000 -S www -G www
-
-RUN chown -R www-data:www-data /var/www/html
-
-#USER www
-
-# COPY --chown=www-data:www-data . /var/www/html
