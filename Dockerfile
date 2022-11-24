@@ -79,7 +79,9 @@ COPY --chown=www-data:www-data /src/public/index.php /var/www/html/public/
 RUN rm /var/www/html/src/artisan
 
 RUN cp src/.env.example src/.env
-CMD [ "/var/www/html/artisan", "key:generate --ansi" ]
+# RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
+# CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
+# /var/www/html/artisan key:generate --ansi
 
 RUN addgroup -g 1000 -S www && \
     adduser -u 1000 -S www -G www
