@@ -16,11 +16,3 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/envs', function () {
-    print_r($_ENV);
-});
-
-Route::get('/server', function () {
-    print_r($_SERVER['SERVER_ADDR']);
-});
