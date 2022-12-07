@@ -70,6 +70,10 @@ RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/f
   chown -R www-data:www-data bootstrap/cache && \
   chmod -R 775 bootstrap/cache
 
+# Copy PHP Config
+COPY /confs/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY /confs/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
+
 COPY /src/artisan /var/www/html/
 COPY /src/composer.* /var/www/html/
 COPY --chown=www-data:www-data --from=build /app /var/www/html/src
