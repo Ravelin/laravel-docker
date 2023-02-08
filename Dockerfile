@@ -69,7 +69,7 @@ RUN \
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
   chown -R www-data:www-data bootstrap/cache && \
   chown -R www-data:www-data storage/ && \
-  chmod -R 775 bootstrap/cache
+  chmod -R 775 bootstrap/cache && \
   chmod -R 775 storage/
 
 # Copy PHP Config
