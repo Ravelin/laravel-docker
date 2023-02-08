@@ -83,7 +83,8 @@ COPY --chown=www-data:www-data /src/resources /var/www/html/resources
 COPY --chown=www-data:www-data --from=build /app/vendor /var/www/html/vendor
 COPY --chown=www-data:www-data --from=build /app/public/index.php /var/www/html/public/
 
-RUN chmod -R 777 /var/www/html/storage/
+RUN chmod -R 777 /var/www/html/src/storage/
+RUN chmod -R 777 /var/www/html/src/bootstrap/
 
 # Remove Unneeded files
 RUN rm /var/www/html/src/artisan
