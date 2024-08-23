@@ -63,7 +63,7 @@ jobs:
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         load: true
-        secret-files: ENV=/var/www/html/${{ secrets.ENV }}
+        secret-files: .env=/var/www/html/${{ secrets.ENV }}
 
     - name: Move cache
       run: |
