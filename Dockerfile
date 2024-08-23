@@ -3,7 +3,7 @@ COPY src/ /app/
 
 RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
 
-FROM php:8.4-rc-zts-alpine
+FROM php:8.4-rc-fpm-alpine
 
 WORKDIR /var/www/html
 
@@ -29,11 +29,17 @@ ENV BUILD_DEPS \
   libzip-dev \
   gmp-dev \
   icu-dev \
+  icu-libs \
   libpng-dev \
+  libwebp-dev \
   libjpeg-turbo-dev\
   wget \
   openssl-dev \
-  gettext-dev
+  gettext-dev \
+  g++ \
+  make \
+  autoconf \
+  freetype-dev
 
 ENV PHP_EXTENSIONS \
   pdo_mysql \
@@ -42,17 +48,18 @@ ENV PHP_EXTENSIONS \
   zip \
   gmp \
   gd \
-  intl \
-  sockets
+  intl
+#  sockets
 
-ENV PECL_EXTENSIONS redis
-ENV PECL_EXTENSIONS_NAMES redis
+#ENV PECL_EXTENSIONS redis
+#ENV PECL_EXTENSIONS_NAMES redis
 
 # Install Dependencies
 RUN \
   apk update && \
   apk add --no-cache $RUN_DEPS $BUILD_DEPS && \
   apk add --no-cache $PHPIZE_DEPS && \
+#  apk add --no-cache pecl install redis && \
   rm -rf /var/cache/apk/*
 
 # Install PHP Extensions
@@ -61,13 +68,15 @@ RUN \
   docker-php-ext-install $PHP_EXTENSIONS && \
   docker-php-ext-configure gmp && \
   docker-php-ext-configure intl && \
-  docker-php-ext-configure gd --with-jpeg && \
-  pecl install $PECL_EXTENSIONS && \
-  docker-php-ext-enable $PECL_EXTENSIONS_NAMES && \
-  docker-php-source delete && \
-  rm -r /tmp/pear/*
+  docker-php-ext-configure gd --enable-gd --with-freetype --with-jpeg --with-webp
+#   docker-php-ext-enable redis.so
+#  docker-php-ext-configure redis
+#  pecl install $PECL_EXTENSIONS && \
+#  docker-php-ext-enable $PECL_EXTENSIONS_NAMES && \
+#  docker-php-source delete && \
+#  rm -r /tmp/pear/*
 
-# Setup Storage
+    # Setup Storage
 RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/framework/sessions storage/framework/views storage/logs && \
   chown -R www-data:www-data bootstrap/cache && \
   chown -R www-data:www-data storage/ && \
@@ -78,22 +87,29 @@ RUN mkdir -p bootstrap/cache storage/framework storage/framework/cache storage/f
 COPY /confs/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY /confs/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 
-COPY /src/artisan /var/www/html/
-COPY /src/composer.* /var/www/html/
-COPY --chown=www-data:www-data --from=build /app /var/www/html/src
-COPY --chown=www-data:www-data /src/resources /var/www/html/resources
-COPY --chown=www-data:www-data --from=build /app/vendor /var/www/html/vendor
-COPY --chown=www-data:www-data --from=build /app/public/index.php /var/www/html/public/
+COPY /src/ /var/www/html/
+#COPY /src/artisan /var/www/html/
+#COPY /src/composer.* /var/www/html/
+#COPY --chown=www-data:www-data --from=build /app /var/www/html/src
+#COPY --chown=www-data:www-data /src/resources /var/www/html/resources
+#COPY --chown=www-data:www-data --from=build /app/vendor /var/www/html/vendor
+#COPY --chown=www-data:www-data --from=build /app/public/index.php /var/www/html/public/
 
-RUN chmod -R 777 /var/www/html/src/storage/
-RUN chmod -R 777 /var/www/html/src/bootstrap/
+#RUN chmod -R 777 /var/www/html/src/storage/
+#RUN chmod -R 777 /var/www/html/src/bootstrap/
+
+RUN chmod -R 777 /var/www/html/storage/
+RUN chmod -R 777 /var/www/html/bootstrap/
 
 # Remove Unneeded files
-RUN rm /var/www/html/src/artisan
-RUN rm -rf /var/www/html/src/vendor
+#RUN rm /var/www/html/src/artisan
+#RUN rm -rf /var/www/html/src/vendor
 
-RUN cp src/.env.example src/.env
-RUN chown=www-data:www-data .env /var/www/html/.env
+#RUN cp src/.env.example src/.env
+#RUN /bin/sh -c "chown www-data:www-data /var/www/html/.env"
+
+RUN cp /var/www/html/.env.example /var/www/html/.env
+RUN /bin/sh -c "chown www-data:www-data /var/www/html/.env"
 
 RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
