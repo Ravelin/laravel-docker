@@ -3,7 +3,7 @@ COPY src/ /app/
 
 RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
 
-FROM php:8.3-fpm-alpine3.16
+FROM php:8.4-rc-zts-alpine
 
 WORKDIR /var/www/html
 
