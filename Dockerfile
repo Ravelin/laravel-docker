@@ -58,10 +58,10 @@ RUN \
 # Install PHP Extensions
 RUN \
   # ln -s /usr/include/x86_64-linux-gnu/gmp.h /usr/include/gmp.h && \
+  docker-php-ext-install $PHP_EXTENSIONS && \
   docker-php-ext-configure gmp && \
   docker-php-ext-configure intl && \
   docker-php-ext-configure gd --with-jpeg && \
-  docker-php-ext-install $PHP_EXTENSIONS && \
   pecl install $PECL_EXTENSIONS && \
   docker-php-ext-enable $PECL_EXTENSIONS_NAMES && \
   docker-php-source delete && \
