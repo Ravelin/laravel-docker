@@ -3,13 +3,13 @@ COPY src/ /app/
 
 RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
 
-FROM php:8.1-fpm-alpine3.16
+FROM php:8.3-fpm-alpine3.16
 
 WORKDIR /var/www/html
 
 # Composer - https://getcomposer.org/download/
-ARG COMPOSER_VERSION="2.4.4"
-ARG COMPOSER_SUM="c252c2a2219956f88089ffc242b42c8cb9300a368fd3890d63940e4fc9652345"
+ARG COMPOSER_VERSION="2.7.8"
+ARG COMPOSER_SUM="3da35dc2abb99d8ef3fdb1dec3166c39189f7cb29974a225e7bbca04c1b2c6e0"
 
 # Install system dependencies
 ENV RUN_DEPS \
