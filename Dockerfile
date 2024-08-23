@@ -1,7 +1,7 @@
 FROM composer:latest AS build
 COPY src/ /app/
 
-RUN composer install --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
+RUN composer update --no-dev --no-interaction --no-progress --no-scripts --optimize-autoloader
 
 FROM php:8.4-rc-fpm-alpine
 
@@ -90,7 +90,7 @@ COPY /confs/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 COPY /src/ /var/www/html/
 #COPY /src/artisan /var/www/html/
 #COPY /src/composer.* /var/www/html/
-#COPY --chown=www-data:www-data --from=build /app /var/www/html/src
+COPY --chown=www-data:www-data --from=build /app /var/www/html/
 #COPY --chown=www-data:www-data /src/resources /var/www/html/resources
 #COPY --chown=www-data:www-data --from=build /app/vendor /var/www/html/vendor
 #COPY --chown=www-data:www-data --from=build /app/public/index.php /var/www/html/public/
@@ -111,7 +111,7 @@ RUN chmod -R 777 /var/www/html/bootstrap/
 RUN cp /var/www/html/.env.example /var/www/html/.env
 RUN /bin/sh -c "chown www-data:www-data /var/www/html/.env"
 
-RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
+RUN #/bin/sh -c "php artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
 # RUN /var/www/html/artisan key:generate --ansi
 
