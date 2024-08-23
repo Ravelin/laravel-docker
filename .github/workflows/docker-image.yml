@@ -61,7 +61,7 @@ jobs:
         cache-to: type=local,dest=/tmp/.buildx-cache-new
         secrets:
           ENV=production
-          EXAMPLE_VAR=${{ variables.EXAMPLE_VAR }}
+          EXAMPLE_VAR=${{ secrets.EXAMPLE_VAR }}
         # push: ${{ github.event_name != 'pull_request' }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
