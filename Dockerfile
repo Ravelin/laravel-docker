@@ -7,6 +7,8 @@ FROM php:8.4-rc-zts-alpine
 
 WORKDIR /var/www/html
 
+ARG ENV_FILE
+
 # Composer - https://getcomposer.org/download/
 ARG COMPOSER_VERSION="2.7.8"
 ARG COMPOSER_SUM="3da35dc2abb99d8ef3fdb1dec3166c39189f7cb29974a225e7bbca04c1b2c6e0"
@@ -43,8 +45,8 @@ ENV PHP_EXTENSIONS \
   intl \
   sockets
 
-ENV PECL_EXTENSIONS redis mailparse mongodb-1.12.1
-ENV PECL_EXTENSIONS_NAMES redis mailparse mongodb
+ENV PECL_EXTENSIONS redis
+ENV PECL_EXTENSIONS_NAMES redis
 
 # Install Dependencies
 RUN \
@@ -91,6 +93,8 @@ RUN rm /var/www/html/src/artisan
 RUN rm -rf /var/www/html/src/vendor
 
 RUN cp src/.env.example src/.env
+COPY --chown=www-data:www-data .env /var/www/html/.env
+
 RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
 # RUN /var/www/html/artisan key:generate --ansi
