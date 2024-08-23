@@ -93,7 +93,7 @@ RUN rm /var/www/html/src/artisan
 RUN rm -rf /var/www/html/src/vendor
 
 RUN cp src/.env.example src/.env
-COPY --chown=www-data:www-data .env /var/www/html/.env
+RUN chown=www-data:www-data .env /var/www/html/.env
 
 RUN /bin/sh -c "/var/www/html/artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
