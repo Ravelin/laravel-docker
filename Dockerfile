@@ -111,7 +111,7 @@ RUN chmod -R 777 /var/www/html/bootstrap/
 RUN cp /var/www/html/.env.example /var/www/html/.env
 RUN /bin/sh -c "chown www-data:www-data /var/www/html/.env"
 
-RUN #/bin/sh -c "php artisan key:generate --ansi"
+RUN /bin/sh -c "php artisan key:generate --ansi"
 # CMD [ "/bin/sh -c /var/www/html/artisan", "key:generate --ansi" ]
 # RUN /var/www/html/artisan key:generate --ansi
 
